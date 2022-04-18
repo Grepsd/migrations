@@ -29,14 +29,18 @@ var migrationsDirectory = "migrations/"
 func main() {
 	var generate, up, down, state, time, init bool
 	var targetVersion int
-	flag.BoolVar(&generate, "generate", false, "generate a new migration")
-	flag.BoolVar(&up, "up", false, "upgrade to version -target or to last version if no target is supplied")
-	flag.BoolVar(&down, "down", false, "downgrade to version -target or by one version if no target is supplied")
-	flag.BoolVar(&state, "state", false, "display current version")
-	flag.BoolVar(&time, "time", false, "preprend outputs with date time")
-	flag.IntVar(&targetVersion, "target", fullUpdate, "target version")
-	flag.BoolVar(&init, "init", false, "init the migration version control system")
-	flag.Parse()
+	flags := flag.NewFlagSet("main", flag.ExitOnError)
+	flags.BoolVar(&generate, "generate", false, "generate a new migration")
+	flags.BoolVar(&up, "up", false, "upgrade to version -target or to last version if no target is supplied")
+	flags.BoolVar(&down, "down", false, "downgrade to version -target or by one version if no target is supplied")
+	flags.BoolVar(&state, "state", false, "display current version")
+	flags.BoolVar(&time, "time", false, "preprend outputs with date time")
+	flags.IntVar(&targetVersion, "target", fullUpdate, "target version")
+	flags.BoolVar(&init, "init", false, "init the migration version control system")
+	if err := flags.Parse(os.Args[1:]); err != nil {
+		fmt.Println(err)
+		os.Exit(2)
+	}
 	logger := log.New(os.Stdout, "", 0)
 	if time {
 		logger.SetFlags(logger.Flags() + log.Lmicroseconds)
